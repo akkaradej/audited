@@ -56,7 +56,7 @@ module Audited
           before_destroy :require_comment
         end
 
-        attr_accessor :audit_comment
+        attr_accessor :audit_comment, :audit_action
 
         has_many :audits, -> { order(version: :asc) }, as: :auditable, class_name: Audited.audit_class.name
         Audited.audit_class.audited_class_names << to_s
@@ -192,19 +192,19 @@ module Audited
       end
 
       def audit_create
-        write_audit(action: 'create', audited_changes: audited_attributes,
+        write_audit(action: audit_action || 'create', audited_changes: audited_attributes,
                     comment: audit_comment)
       end
 
       def audit_update
         unless (changes = audited_changes).empty? && audit_comment.blank?
-          write_audit(action: 'update', audited_changes: changes,
+          write_audit(action: audit_action || 'update', audited_changes: changes,
                       comment: audit_comment)
         end
       end
 
       def audit_destroy
-        write_audit(action: 'destroy', audited_changes: audited_attributes,
+        write_audit(action: audit_action || 'destroy', audited_changes: audited_attributes,
                     comment: audit_comment) unless self.new_record?
       end
 

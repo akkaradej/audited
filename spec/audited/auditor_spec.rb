@@ -72,6 +72,11 @@ describe Audited::Auditor do
       expect(user.audits.destroys.count).to eq(0)
     end
 
+    it "should set the action to defined action" do
+      custom_user = create_user(audit_action: 'custom_action')
+      expect(custom_user.audits.first.action).to eq('custom_action')
+    end
+
     it "should store all the audited attributes" do
       expect(user.audits.first.audited_changes).to eq(user.audited_attributes)
     end
@@ -111,6 +116,12 @@ describe Audited::Auditor do
       expect(@user.audits.last.action).to eq('update')
       expect(Audited.audit_class.updates.order(:id).last).to eq(@user.audits.last)
       expect(@user.audits.updates.last).to eq(@user.audits.last)
+    end
+
+    it "should set the action to defined action" do
+      @user.audit_action = 'custom_action'
+      @user.update_attributes :name => 'Changed'
+      expect(@user.audits.last.action).to eq('custom_action')
     end
 
     it "should store the changed attributes" do
@@ -171,6 +182,13 @@ describe Audited::Auditor do
       expect(@user.audits.last.action).to eq('destroy')
       expect(Audited.audit_class.destroys.order(:id).last).to eq(@user.audits.last)
       expect(@user.audits.destroys.last).to eq(@user.audits.last)
+    end
+
+    it "should set the action to defined action" do
+      @user.audit_action = 'custom_action'
+      @user.destroy
+
+      expect(@user.audits.last.action).to eq('custom_action')
     end
 
     it "should store all of the audited attributes" do
